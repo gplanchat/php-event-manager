@@ -19,6 +19,9 @@
  * @licence GNU Lesser General Public Licence (http://www.gnu.org/licenses/lgpl-3.0.txt)
  */
 
+/**
+ * @namespace
+ */
 namespace Gplanchat\EventManager;
 
 /**

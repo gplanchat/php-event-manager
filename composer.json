@@ -1,0 +1,17 @@
+{
+    "version": "1.0.0",
+
+    "name": "gplanchat/php-event-manager",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/gplanchat/php-event-manager.git"
+        }
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+    "autoload": {
+        "psr-0": {"Gplanchat\\EventManager": "src/"}
+    }
+}

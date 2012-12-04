@@ -72,5 +72,5 @@ interface EventEmitterInterface
      * @param array $params
      * @return EventEmitterInterface
      */
-    public function emit(EventInterface $event, Array $params = []);
+    public function emit(EventInterface $event, array $params = []);
 }

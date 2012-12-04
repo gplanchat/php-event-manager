@@ -39,7 +39,7 @@ trait EventTrait
     /**
      * @var array
      */
-    private $data = array();
+    private $data = [];
 
     /**
      * @return string

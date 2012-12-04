@@ -17,7 +17,7 @@ use stdClass;
 class SharedEventEmitterTest
     extends PHPUnit_Framework_TestCase
 {
-    protected function _getEventMock(Array $methods = [], Array $arguments = [])
+    protected function _getEventMock(array $methods = [], array $arguments = [])
     {
         return $this->getMock('Gplanchat\\EventManager\\Event', $methods, $arguments);
     }
@@ -82,7 +82,7 @@ class SharedEventEmitterTest
         $counter = 0;
 
         $eventEmitter = $this->_getEventEmitter();
-        $eventEmitter->on(array('my_event_name1', 'my_event_name2'), function(Event $e) use(&$counter) {$counter++;});
+        $eventEmitter->on(['my_event_name1', 'my_event_name2'], function(Event $e) use(&$counter) {$counter++;});
 
         $eventEmitter->emit(new Event('my_event_name1'));
 
@@ -102,7 +102,7 @@ class SharedEventEmitterTest
         $counter = 0;
 
         $eventEmitter = $this->_getEventEmitter();
-        $callbackHandler = $eventEmitter->on(array('my_event_name1', 'my_event_name2'), function(Event $e) use(&$counter) {$counter++;});
+        $callbackHandler = $eventEmitter->on(['my_event_name1', 'my_event_name2'], function(Event $e) use(&$counter) {$counter++;});
 
         $eventEmitter->removeListener('my_event_name1', $callbackHandler);
 
@@ -118,9 +118,9 @@ class SharedEventEmitterTest
         $counter = 0;
 
         $eventEmitter = $this->_getEventEmitter();
-        $callbackHandler = $eventEmitter->on(array('my_event_name1', 'my_event_name2'), function(Event $e) use(&$counter) {$counter++;});
+        $callbackHandler = $eventEmitter->on(['my_event_name1', 'my_event_name2'], function(Event $e) use(&$counter) {$counter++;});
 
-        $eventEmitter->removeListener(array('my_event_name1', 'my_event_name2'), $callbackHandler);
+        $eventEmitter->removeListener(['my_event_name1', 'my_event_name2'], $callbackHandler);
 
         $eventEmitter->emit(new Event('my_event_name1'));
         $this->assertEquals(0, $counter);

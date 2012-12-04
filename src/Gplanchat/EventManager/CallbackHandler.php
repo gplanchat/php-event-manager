@@ -34,13 +34,13 @@ class CallbackHandler
     /**
      * @var array
      */
-    private $data = array();
+    private $data = [];
 
     /**
      * @param $callback
      * @param array $data
      */
-    public function __construct(callable $callback, Array $data = [])
+    public function __construct(callable $callback, array $data = [])
     {
         $this->callback = $callback;
         $this->data = $data;
@@ -63,7 +63,7 @@ class CallbackHandler
      * @param array $parameters
      * @return mixed
      */
-    public function call(Array $parameters = [])
+    public function call(array $parameters = [])
     {
         return call_user_func_array($this->callback, $parameters);
     }

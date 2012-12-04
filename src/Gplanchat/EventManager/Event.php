@@ -38,7 +38,7 @@ class Event
      * @param string $name
      * @param array $data
      */
-    public function __construct($name, Array $data = [])
+    public function __construct($name, array $data = [])
     {
         if (!is_string($name) || empty($name)) {
             throw new RuntimeException('First parameter should be a string.');

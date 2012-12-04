@@ -49,19 +49,19 @@ class EventTest
 
     public function testExistentMetadata()
     {
-        $event = new Event('my_event_name', array('my_event_data_key1' => 'my_event_data_value1'));
+        $event = new Event('my_event_name', ['my_event_data_key1' => 'my_event_data_value1']);
         $this->assertEquals($event->getData('my_event_data_key1'), 'my_event_data_value1');
     }
 
     public function testNotExistentMetadataUsingDefaultValue()
     {
-        $event = new Event('my_event_name', array('my_event_data_key1' => 'my_event_data_value1'));
+        $event = new Event('my_event_name', ['my_event_data_key1' => 'my_event_data_value1']);
         $this->assertEquals($event->getData('my_event_data_key2', 'my_event_default_data_value'), 'my_event_default_data_value');
     }
 
     public function testNotExistentMetadataUsingNoDefaultValue()
     {
-        $event = new Event('my_event_name', array('my_event_data_key1' => 'my_event_data_value1'));
+        $event = new Event('my_event_name', ['my_event_data_key1' => 'my_event_data_value1']);
         $this->assertNull($event->getData('my_event_data_key2'));
     }
 

@@ -217,7 +217,7 @@ trait EventEmitterTrait
      * @return EventEmitterInterface
      * @throws \RuntimeException
      */
-    public function emit(EventInterface $event, Array $params = [])
+    public function emit(EventInterface $event, array $params = [])
     {
         $eventName = $event->getName();
         if (!is_string($eventName) || empty($eventName)) {

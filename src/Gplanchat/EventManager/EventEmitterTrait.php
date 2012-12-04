@@ -21,7 +21,8 @@
 
 namespace Gplanchat\EventManager;
 
-use SplQueue;
+use SplPriorityQueue;
+use RuntimeException;
 
 /**
  *
@@ -31,86 +32,105 @@ trait EventEmitterTrait
     /**
      * @var array
      */
-    private $eventListeners = array();
+    private $eventListeners = [];
+
+    private $priorityQueues = [];
 
     /**
-     * @param string|array $eventName
+     * @param string|array $eventNameList
      * @param callable $listener
      * @param bool $isCalledOnce
      * @return EventEmitterInterface
      */
-    private function _registerEvent($eventName, callable $listener, $isCalledOnce = false)
+    private function _registerEvent($eventNameList, callable $listener, $priority, $isCalledOnce = false)
     {
-        if (!isset($this->eventListeners[$eventName])) {
-            $this->eventListeners[$eventName] = array();
+        if (is_string($eventNameList)) {
+            $eventNameList = [$eventNameList];
         }
 
-        $eventEntry = array(
-            'callback'       => $listener,
-            'is_called_once' => (bool) $isCalledOnce
-        );
-        $this->eventListeners[$eventName][] = $eventEntry;
+        if (!is_array($eventNameList)) {
+            throw new RuntimeException('First parameter shoud be either a string or an array');
+        }
+
+        $eventEntry = new CallbackHandler($listener, [
+            'is_called_once' => (bool) $isCalledOnce,
+            'priority'       => $priority
+        ]);
+
+        foreach ($eventNameList as $eventName) {
+            if (!isset($this->eventListeners[$eventName])) {
+                $this->eventListeners[$eventName] = [];
+            }
+            if (!isset($this->priorityQueues[$eventName])) {
+                $this->priorityQueues[$eventName] = new SplPriorityQueue();
+            }
+
+            $this->eventListeners[$eventName][] = $eventEntry;
+            $this->priorityQueues[$eventName]->insert($eventEntry, $priority);
+        }
 
         return $eventEntry;
     }
 
     /**
-     * @param string|array $eventName
+     * @param string|array $eventNameList
      * @param callable $listener
      * @return EventEmitterInterface
      * @throws \RuntimeException
      */
-    public function on($eventName, callable $listener)
+    public function on($eventNameList, callable $listener, $priority = null)
     {
-        $eventName = (string) $eventName;
-        if (empty($eventName)) {
-            throw new \RuntimeException('Could not register event, event name should be a non-empty string.');
-        }
-
-        $this->_registerEvent($eventName, $listener, false);
-
-        return $this;
+        return $this->_registerEvent($eventNameList, $listener, $priority, false);
     }
 
     /**
-     * @param string|array $eventName
+     * @param string|array $eventNameList
      * @param callable $listener
      * @return CallbackHandler
      * @throws \RuntimeException
      */
-    public function once($eventName, callable $listener)
+    public function once($eventNameList, callable $listener, $priority = null)
     {
-        $eventName = (string) $eventName;
-        if (empty($eventName)) {
-            throw new \RuntimeException('Could not register event, event name should be a non-empty string.');
-        }
-
-        $this->_registerEvent($eventName, $listener, true);
-
-        return $this;
+        return $this->_registerEvent($eventNameList, $listener, $priority, true);
     }
 
     /**
-     * @param string|array $eventName
-     * @param callable $callback
+     * Remove a listener from an event list. This operation consumes lots of resources as long as each priority queue
+     * has to be destroyed and re-populated.
+     *
+     * @param string|array $eventNameList
+     * @param CallbackHandler $callback
      * @return EventEmitterInterface
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
-    public function removeListener($eventName, callable $callback)
+    public function removeListener($eventNameList, CallbackHandler $callbackHandler)
     {
-        $eventName = (string) $eventName;
-        if (empty($eventName)) {
-            throw new \RuntimeException('Could not remove event listeners, event name should be a non-empty string.');
+        if (is_string($eventNameList)) {
+            if ($eventNameList == '*') {
+                $eventNameList = array_keys($this->eventListeners);
+            } else {
+                $eventNameList = [$eventNameList];
+            }
         }
 
-        if (!isset($this->eventListeners[$eventName])) {
-            return $this;
+        if (!is_array($eventNameList)) {
+            throw new RuntimeException('First parameter shoud be either a string or an array');
         }
 
-        foreach ($this->eventListeners[$eventName] as $key => $eventEntry) {
-            if ($eventEntry === $callback) {
-                unset($this->eventListeners[$eventName][$key]);
-                break;
+        foreach ($eventNameList as $eventName) {
+            $eventName = (string) $eventName;
+            if (empty($eventName)) {
+                continue;
+            }
+
+            $key = array_search($callbackHandler, $this->eventListeners[$eventName]);
+            if ($key === false) {
+                continue;
+            }
+            unset($this->eventListeners[$eventName][$key]);
+            $this->priorityQueues[$eventName] = new SplPriorityQueue();
+            foreach ($this->eventListeners[$eventName] as $item) {
+                $this->priorityQueues[$eventName]->insert($item, $item->getData('priority'));
             }
         }
 
@@ -118,48 +138,77 @@ trait EventEmitterTrait
     }
 
     /**
-     * @param string|array $eventName
+     * @param string|array $eventNameList
      * @return EventEmitterInterface
      * @throws \RuntimeException
      */
-    public function removeAllListeners($eventName)
+    public function removeAllListeners($eventNameList)
     {
-        $eventName = (string) $eventName;
-        if (empty($eventName)) {
-            throw new \RuntimeException('Could not remove event listeners, event name should be a non-empty string.');
+        if (is_string($eventNameList)) {
+            if ($eventNameList == '*') {
+                $eventNameList = array_keys($this->eventListeners);
+            } else {
+                $eventNameList = [$eventNameList];
+            }
         }
 
-        if (!isset($this->eventListeners[$eventName])) {
-            return $this;
+        if (!is_array($eventNameList)) {
+            throw new RuntimeException('First parameter shoud be either a string or an array');
         }
 
-        unset($this->eventListeners[$eventName]);
+        foreach ($eventNameList as $eventName) {
+            $eventName = (string) $eventName;
+            if (empty($eventName)) {
+                continue;
+            }
+
+            if (!isset($this->eventListeners[$eventName])) {
+                continue;
+            }
+
+            unset($this->eventListeners[$eventName]);
+            unset($this->priorityQueues[$eventName]);
+        }
 
         return $this;
     }
 
     /**
-     * @param string|array $eventName
+     * @param string|array $eventNameList
      * @return array
      * @throws \RuntimeException
      */
-    public function getListeners($eventName)
+    public function getListeners($eventNameList)
     {
-        $eventName = (string) $eventName;
-        if (empty($eventName)) {
-            throw new \RuntimeException('Could not get event listeners, event name should be a non-empty string.');
+        if (is_string($eventNameList)) {
+            if ($eventNameList == '*') {
+                $eventNameList = array_keys($this->eventListeners);
+            } else {
+                $eventNameList = [$eventNameList];
+            }
         }
 
-        if (!isset($this->eventListeners[$eventName])) {
-            return [];
+        if (!is_array($eventNameList)) {
+            throw new RuntimeException('First parameter shoud be either a string or an array');
         }
 
-        $result = [];
-        foreach ($this->eventListeners[$eventName] as $eventEntry) {
-            $result[] = $eventEntry->listener;
+        $listenerList = [];
+        foreach ($eventNameList as $eventName) {
+            $eventName = (string) $eventName;
+            if (empty($eventName)) {
+                continue;
+            }
+
+            if (!isset($this->eventListeners[$eventName])) {
+                continue;
+            }
+
+            foreach ($this->eventListeners[$eventName] as $eventEntry) {
+                $listenerList[] = $eventEntry->listener;
+            }
         }
 
-        return $result;
+        return $listenerList;
     }
 
     /**
@@ -171,7 +220,7 @@ trait EventEmitterTrait
     public function emit(EventInterface $event, Array $params = [])
     {
         $eventName = $event->getName();
-        if (empty($eventName)) {
+        if (!is_string($eventName) || empty($eventName)) {
             throw new \RuntimeException('Could not trigger event, event name should be a non-empty string.');
         }
 
@@ -180,11 +229,12 @@ trait EventEmitterTrait
         }
 
         array_unshift($params, $event);
-        foreach ($this->eventListeners[$eventName] as $eventIndex => $eventEntry) {
-            call_user_func_array($eventEntry['callback'], $params);
+        foreach ($this->eventListeners[$eventName] as $eventEntry) {
+            /** @var CallbackHandler $eventEntry */
+            $eventEntry->call($params);
 
-            if ($eventEntry['is_called_once']) {
-                unset($this->eventListeners[$eventName][$eventIndex]);
+            if ($eventEntry->getData('is_called_once')) {
+                $this->removeListener($eventName, $eventEntry);
             }
 
             if ($event->isStopped()) {

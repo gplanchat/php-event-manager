@@ -21,30 +21,58 @@
 
 namespace Gplanchat\EventManager;
 
-use RuntimeException;
-
 /**
- * Event basic class. Used to manage flow-control and environment datas.
  *
- * @author  Grégory PLANCHAT<g.planchat@gmail.com>
- * @licence GNU Lesser General Public Licence (http://www.gnu.org/licenses/lgpl-3.0.txt)
  */
-class Event
-    implements EventInterface
+class CallbackHandler
 {
-    use EventTrait;
+    /**
+     * @var callable
+     */
+    private $callback = null;
 
     /**
-     * @param string $name
+     * @var array
+     */
+    private $data = array();
+
+    /**
+     * @param $callback
      * @param array $data
      */
-    public function __construct($name, Array $data = [])
+    public function __construct(callable $callback, Array $data = [])
     {
-        if (!is_string($name) || empty($name)) {
-            throw new RuntimeException('First parameter should be a string.');
-        }
-
-        $this->name = $name;
+        $this->callback = $callback;
         $this->data = $data;
+    }
+
+    /**
+     * @param $key
+     * @param null $default
+     * @return null
+     */
+    public function getData($key, $default = null)
+    {
+        if (!isset($this->data[(string) $key])) {
+            return $default;
+        }
+        return $this->data[(string) $key];
+    }
+
+    /**
+     * @param array $parameters
+     * @return mixed
+     */
+    public function call(Array $parameters = [])
+    {
+        return call_user_func_array($this->callback, $parameters);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function __invoke()
+    {
+        return $this->call(func_get_args());
     }
 }

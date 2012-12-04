@@ -30,41 +30,41 @@ interface EventEmitterInterface
 
     /**
      * @abstract
-     * @param string|array $eventName
+     * @param string|array $eventNameList
      * @param callable $listener
      * @return CallbackHandler
      */
-    public function on($eventName, callable $listener);
+    public function on($eventNameList, callable $listener, $priority = null);
 
     /**
      * @abstract
-     * @param string|array $eventName
+     * @param string|array $eventNameList
      * @param callable $listener
      * @return CallbackHandler
      */
-    public function once($eventName, callable $listener);
+    public function once($eventNameList, callable $listener, $priority = null);
 
     /**
      * @abstract
-     * @param string|array $eventName
+     * @param string|array $eventNameList
      * @param callable $listener
      * @return EventEmitterInterface
      */
-    public function removeListener($eventName, callable $callback);
+    public function removeListener($eventNameList, CallbackHandler $callback);
 
     /**
      * @abstract
-     * @param string|array $eventName
+     * @param string|array $eventNameList
      * @return EventEmitterInterface
      */
-    public function removeAllListeners($eventName);
+    public function removeAllListeners($eventNameList);
 
     /**
      * @abstract
-     * @param string|array $eventName
+     * @param string|array $eventNameList
      * @return array
      */
-    public function getListeners($eventName);
+    public function getListeners($eventNameList);
 
     /**
      * @abstract

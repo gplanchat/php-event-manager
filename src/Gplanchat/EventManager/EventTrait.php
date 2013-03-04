@@ -83,4 +83,16 @@ trait EventTrait
 
         return $this->data[(string) $key];
     }
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @return EventInterface
+     */
+    public function setData($key, $value)
+    {
+        $this->data[(string) $key] = $value;
+
+        return $this;
+    }
 }

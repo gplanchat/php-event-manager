@@ -231,6 +231,8 @@ trait EventEmitterTrait
             return $this;
         }
 
+        $event->setData('eventEmitter', $this);
+
         array_unshift($params, $event);
         foreach ($this->eventListeners[$eventName] as $eventEntry) {
             /** @var CallbackHandler $eventEntry */

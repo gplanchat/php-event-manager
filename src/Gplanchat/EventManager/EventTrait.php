@@ -45,6 +45,11 @@ trait EventTrait
     private $data = [];
 
     /**
+     * @var EventEmitterInterface
+     */
+    private $eventEmitter = null;
+
+    /**
      * @return string
      */
     public function getName()
@@ -94,5 +99,24 @@ trait EventTrait
         $this->data[(string) $key] = $value;
 
         return $this;
+    }
+
+    /**
+     * @param EventEmitterInterface $eventEmitter
+     * @return EventInterface
+     */
+    public function setEventEmitter(EventEmitterInterface $eventEmitter)
+    {
+        $this->eventEmitter = $eventEmitter;
+
+        return $this;
+    }
+
+    /**
+     * @return EventEmitterInterface
+     */
+    public function getEventEmitter()
+    {
+        return $this->eventEmitter;
     }
 }

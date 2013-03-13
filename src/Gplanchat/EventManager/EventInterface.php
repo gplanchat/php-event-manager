@@ -62,9 +62,13 @@ interface EventInterface
     public function setData($key, $value);
 
     /**
-     * @param string $key
-     * @param mixed $value
+     * @param EventEmitterInterface $eventEmitter
      * @return EventInterface
      */
     public function setEventEmitter(EventEmitterInterface $eventEmitter);
+
+    /**
+     * @return EventEmitterInterface
+     */
+    public function getEventEmitter();
 }

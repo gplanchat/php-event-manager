@@ -78,4 +78,23 @@ class CallbackHandler
     {
         return $this->call(func_get_args());
     }
+
+    /**
+     * @param callable $callback
+     * @return CallbackHandler
+     */
+    public function setCallback(callable $callback)
+    {
+        $this->callback = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @return callable
+     */
+    public function getCallback()
+    {
+        return $this->callback;
+    }
 }

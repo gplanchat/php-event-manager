@@ -53,7 +53,7 @@ interface EventEmitterInterface
      * @param callable $listener
      * @return EventEmitterInterface
      */
-    public function removeListener($eventNameList, CallbackHandler $callback);
+    public function removeListener($eventNameList, CallbackHandlerInterface $callback);
 
     /**
      * @abstract

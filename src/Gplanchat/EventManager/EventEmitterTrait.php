@@ -106,7 +106,7 @@ trait EventEmitterTrait
      * @return EventEmitterInterface
      * @throws RuntimeException
      */
-    public function removeListener($eventNameList, CallbackHandler $callbackHandler)
+    public function removeListener($eventNameList, CallbackHandlerInterface $callbackHandler)
     {
         if (is_string($eventNameList)) {
             if ($eventNameList == '*') {
@@ -232,6 +232,7 @@ trait EventEmitterTrait
         }
 
         $event->setData('eventEmitter', $this);
+        $event->setEventEmitter($this);
 
         array_unshift($params, $event);
         foreach ($this->eventListeners[$eventName] as $eventEntry) {

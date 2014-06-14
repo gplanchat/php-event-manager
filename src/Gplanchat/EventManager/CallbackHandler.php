@@ -27,7 +27,7 @@ namespace Gplanchat\EventManager;
 /**
  *
  */
-class CallbackHandler
+class CallbackHandler implements CallbackHandlerInterface
 {
     /**
      * @var callable

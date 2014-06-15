@@ -12,6 +12,6 @@
         "php": ">=5.4"
     },
     "autoload": {
-        "psr-0": {"Gplanchat\\EventManager": "src/"}
+        "psr-4": {"Gplanchat\\EventManager": "src/"}
     }
 }

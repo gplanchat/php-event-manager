@@ -102,7 +102,7 @@ trait EventEmitterTrait
      * has to be destroyed and re-populated.
      *
      * @param string|array $eventNameList
-     * @param CallbackHandlerInterfaceCallbackHandler $callbackHandler
+     * @param CallbackHandlerInterface $callbackHandler
      * @return EventEmitterInterface
      * @throws RuntimeException
      */

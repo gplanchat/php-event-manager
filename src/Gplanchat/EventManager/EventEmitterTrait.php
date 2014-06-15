@@ -55,7 +55,7 @@ trait EventEmitterTrait
             throw new RuntimeException('First parameter shoud be either a string or an array');
         }
 
-        $eventEntry = new CallbackHandler($listener, [
+        $eventEntry = $this->newCallbackHandler($listener, [
             'is_called_once' => (bool) $isCalledOnce,
             'priority'       => $priority
         ]);
@@ -78,7 +78,7 @@ trait EventEmitterTrait
     /**
      * @param string|array $eventNameList
      * @param callable $listener
-     * @return EventEmitterInterface
+     * @return CallbackHandlerInterface
      * @throws \RuntimeException
      */
     public function on($eventNameList, callable $listener, $priority = null)
@@ -89,7 +89,7 @@ trait EventEmitterTrait
     /**
      * @param string|array $eventNameList
      * @param callable $listener
-     * @return CallbackHandler
+     * @return CallbackHandlerInterface
      * @throws \RuntimeException
      */
     public function once($eventNameList, callable $listener, $priority = null)
@@ -102,11 +102,11 @@ trait EventEmitterTrait
      * has to be destroyed and re-populated.
      *
      * @param string|array $eventNameList
-     * @param CallbackHandler $callback
+     * @param CallbackHandlerInterfaceCallbackHandler $callbackHandler
      * @return EventEmitterInterface
      * @throws RuntimeException
      */
-    public function removeListener($eventNameList, CallbackHandler $callbackHandler)
+    public function removeListener($eventNameList, CallbackHandlerInterface $callbackHandler)
     {
         if (is_string($eventNameList)) {
             if ($eventNameList == '*') {
@@ -217,10 +217,11 @@ trait EventEmitterTrait
     /**
      * @param EventInterface $event
      * @param array $params
+     * @param callable $cleanupCallback
      * @return EventEmitterInterface
      * @throws \RuntimeException
      */
-    public function emit(EventInterface $event, array $params = [])
+    public function emit(EventInterface $event, array $params = [], callable $cleanupCallback = null)
     {
         $eventName = $event->getName();
         if (!is_string($eventName) || empty($eventName)) {
@@ -231,9 +232,11 @@ trait EventEmitterTrait
             return $this;
         }
 
+        $event->setEventEmitter($this);
+
         array_unshift($params, $event);
         foreach ($this->eventListeners[$eventName] as $eventEntry) {
-            /** @var CallbackHandler $eventEntry */
+            /** @var CallbackHandlerInterface $eventEntry */
             $eventEntry->call($params);
 
             if ($eventEntry->getData('is_called_once')) {
@@ -245,6 +248,20 @@ trait EventEmitterTrait
             }
         }
 
+        if ($cleanupCallback !== null) {
+            call_user_func_array($cleanupCallback, $params);
+        }
+
         return $this;
+    }
+
+    /**
+     * @param callable $callback
+     * @param array $options
+     * @return CallbackHandlerInterface
+     */
+    public function newCallbackHandler(callable $callback, array $options = [])
+    {
+        return new CallbackHandler($callback, $options);
     }
 }

@@ -27,17 +27,12 @@ namespace Gplanchat\EventManager;
 /**
  *
  */
-trait EventTrait
+trait CallbackHandlerTrait
 {
     /**
-     * @var string
+     * @var callable
      */
-    protected $name = null;
-
-    /**
-     * @var bool
-     */
-    protected $isStopped = false;
+    private $callback = null;
 
     /**
      * @var array
@@ -45,56 +40,22 @@ trait EventTrait
     private $data = [];
 
     /**
-     * @var EventEmitterInterface
+     * @param array $datas
+     * @return $this
      */
-    private $eventEmitter = null;
-
-    /**
-     * @return string
-     */
-    public function getName()
+    public function initData(array $datas)
     {
-        return $this->name;
-    }
-
-    /**
-     * @return EventInterface
-     */
-    public function stop()
-    {
-        $this->isStopped = true;
+        $this->data = $datas;
 
         return $this;
     }
 
     /**
-     * @return bool
-     */
-    public function isStopped()
-    {
-        return (bool) $this->isStopped;
-    }
-
-    /**
-     * @param string $key
-     * @param mixed $default
-     * @return mixed
-     */
-    public function getData($key, $default = null)
-    {
-        if (!isset($this->data[(string) $key])) {
-            return $default;
-        }
-
-        return $this->data[(string) $key];
-    }
-
-    /**
      * @param string $key
      * @param mixed $value
-     * @return EventInterface
+     * @return $this
      */
-    public function setData($key, $value)
+    public function setData($key, $value = null)
     {
         $this->data[(string) $key] = $value;
 
@@ -102,21 +63,48 @@ trait EventTrait
     }
 
     /**
-     * @param EventEmitterInterface $eventEmitter
-     * @return EventInterface
+     * @param $key
+     * @param null $default
+     * @return mixed
      */
-    public function setEventEmitter(EventEmitterInterface $eventEmitter)
+    public function getData($key, $default = null)
     {
-        $this->eventEmitter = $eventEmitter;
+        if (!isset($this->data[(string) $key])) {
+            return $default;
+        }
+        return $this->data[(string) $key];
+    }
+
+    /**
+     * @param array $parameters
+     * @return void
+     */
+    abstract public function call(array $parameters = []);
+
+    /**
+     * @return void
+     */
+    public function __invoke()
+    {
+        $this->call(func_get_args());
+    }
+
+    /**
+     * @param callable $callback
+     * @return $this
+     */
+    public function setCallback(callable $callback)
+    {
+        $this->callback = $callback;
 
         return $this;
     }
 
     /**
-     * @return EventEmitterInterface
+     * @return callable
      */
-    public function getEventEmitter()
+    public function getCallback()
     {
-        return $this->eventEmitter;
+        return $this->callback;
     }
 }

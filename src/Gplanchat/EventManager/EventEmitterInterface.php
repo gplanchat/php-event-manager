@@ -35,7 +35,7 @@ interface EventEmitterInterface
      * @abstract
      * @param string|array $eventNameList
      * @param callable $listener
-     * @return CallbackHandler
+     * @return CallbackHandlerInterface
      */
     public function on($eventNameList, callable $listener, $priority = null);
 
@@ -43,17 +43,17 @@ interface EventEmitterInterface
      * @abstract
      * @param string|array $eventNameList
      * @param callable $listener
-     * @return CallbackHandler
+     * @return CallbackHandlerInterface
      */
     public function once($eventNameList, callable $listener, $priority = null);
 
     /**
      * @abstract
      * @param string|array $eventNameList
-     * @param callable $listener
+     * @param CallbackHandlerInterface $callbackHandler
      * @return EventEmitterInterface
      */
-    public function removeListener($eventNameList, CallbackHandler $callback);
+    public function removeListener($eventNameList, CallbackHandlerInterface $callbackHandler);
 
     /**
      * @abstract
@@ -73,7 +73,15 @@ interface EventEmitterInterface
      * @abstract
      * @param EventInterface $event
      * @param array $params
+     * @param callable $cleanupCallback
      * @return EventEmitterInterface
      */
-    public function emit(EventInterface $event, array $params = []);
+    public function emit(EventInterface $event, array $params = [], callable $cleanupCallback = null);
+
+    /**
+     * @param callable $callback
+     * @param array $options
+     * @return CallbackHandlerInterface
+     */
+    public function newCallbackHandler(callable $callback, array $options = []);
 }

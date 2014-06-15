@@ -27,26 +27,20 @@ namespace Gplanchat\EventManager;
 /**
  *
  */
-interface EventInterface
+interface CallbackHandlerInterface
 {
     /**
-     * @abstract
-     * @return string
+     * @param array $datas
+     * @return $this
      */
-    public function getName();
+    public function initData(array $datas);
 
     /**
-     * @abstract
-     * @return EventInterface
+     * @param string $key
+     * @param mixed $value
+     * @return null
      */
-    public function stop();
-
-    /**
-     * @abstract
-     * @return bool
-     */
-    public function isStopped();
-
+    public function setData($key, $value = null);
     /**
      * @param string $key
      * @param mixed $default
@@ -55,20 +49,24 @@ interface EventInterface
     public function getData($key, $default = null);
 
     /**
-     * @param string $key
-     * @param mixed $value
-     * @return EventInterface
+     * @param array $parameters
+     * @return void
      */
-    public function setData($key, $value);
+    public function call(array $parameters = []);
 
     /**
-     * @param EventEmitterInterface $eventEmitter
-     * @return EventInterface
+     * @return void
      */
-    public function setEventEmitter(EventEmitterInterface $eventEmitter);
+    public function __invoke();
 
     /**
-     * @return EventEmitterInterface
+     * @param callable $callback
+     * @return $this
      */
-    public function getEventEmitter();
+    public function setCallback(callable $callback);
+
+    /**
+     * @return callable
+     */
+    public function getCallback();
 }

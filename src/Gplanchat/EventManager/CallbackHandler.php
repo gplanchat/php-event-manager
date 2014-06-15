@@ -28,54 +28,26 @@ namespace Gplanchat\EventManager;
  *
  */
 class CallbackHandler
+    implements CallbackHandlerInterface
 {
-    /**
-     * @var callable
-     */
-    private $callback = null;
+    use CallbackHandlerTrait;
 
     /**
-     * @var array
-     */
-    private $data = [];
-
-    /**
-     * @param $callback
+     * @param callable $callback
+     * @param array $data
      * @param array $data
      */
     public function __construct(callable $callback, array $data = [])
     {
-        $this->callback = $callback;
-        $this->data = $data;
-    }
-
-    /**
-     * @param $key
-     * @param null $default
-     * @return null
-     */
-    public function getData($key, $default = null)
-    {
-        if (!isset($this->data[(string) $key])) {
-            return $default;
-        }
-        return $this->data[(string) $key];
+        $this->setCallback($callback);
+        $this->initData($data);
     }
 
     /**
      * @param array $parameters
-     * @return mixed
      */
     public function call(array $parameters = [])
     {
-        return call_user_func_array($this->callback, $parameters);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function __invoke()
-    {
-        return $this->call(func_get_args());
+        call_user_func_array($this->getCallback(), $parameters);
     }
 }

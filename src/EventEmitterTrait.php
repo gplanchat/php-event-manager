@@ -207,7 +207,7 @@ trait EventEmitterTrait
             }
 
             foreach ($this->eventListeners[$eventName] as $eventEntry) {
-                $listenerList[] = $eventEntry->listener;
+                $listenerList[] = $eventEntry->getCallback();
             }
         }
 

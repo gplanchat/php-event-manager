@@ -33,19 +33,24 @@ use RuntimeException;
 trait EventEmitterTrait
 {
     /**
-     * @var array
+     * @var array|CallbackHandlerInterface[]
      */
     private $eventListeners = [];
 
+    /**
+     * @var array|SplPriorityQueue[]
+     */
     private $priorityQueues = [];
 
     /**
      * @param string|array $eventNameList
      * @param callable $listener
+     * @param int $priority
      * @param bool $isCalledOnce
-     * @return EventEmitterInterface
+     * @throws RuntimeException
+     * @return $this
      */
-    private function _registerEvent($eventNameList, callable $listener, $priority, $isCalledOnce = false)
+    protected function registerEvent($eventNameList, callable $listener, $priority, $isCalledOnce = false)
     {
         if (is_string($eventNameList)) {
             $eventNameList = [$eventNameList];
@@ -76,25 +81,25 @@ trait EventEmitterTrait
     }
 
     /**
-     * @param string|array $eventNameList
+     * @param $eventNameList
      * @param callable $listener
-     * @return CallbackHandlerInterface
-     * @throws \RuntimeException
+     * @param null $priority
+     * @return $this
      */
     public function on($eventNameList, callable $listener, $priority = null)
     {
-        return $this->_registerEvent($eventNameList, $listener, $priority, false);
+        return $this->registerEvent($eventNameList, $listener, $priority, false);
     }
 
     /**
-     * @param string|array $eventNameList
+     * @param $eventNameList
      * @param callable $listener
-     * @return CallbackHandlerInterface
-     * @throws \RuntimeException
+     * @param null $priority
+     * @return $this
      */
     public function once($eventNameList, callable $listener, $priority = null)
     {
-        return $this->_registerEvent($eventNameList, $listener, $priority, true);
+        return $this->registerEvent($eventNameList, $listener, $priority, true);
     }
 
     /**
